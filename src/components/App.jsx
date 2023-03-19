@@ -6,11 +6,13 @@ export default class App extends Component {
   state = {
     searchQuery: '',
   };
-
+  onFormSubmit = searchQuery => {
+    this.setState({ searchQuery });
+  };
   render() {
     return (
       <AppContainer>
-        <Searchbar></Searchbar>
+        <Searchbar onSubmit={this.onFormSubmit}></Searchbar>
       </AppContainer>
     );
   }
