@@ -1,12 +1,13 @@
 import { ImageList } from './ImageGallery.styled';
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ results }) => {
+export const ImageGallery = ({ results, onClick }) => {
   return (
-    <ImageList>
+    <ImageList onClick={onClick}>
       {results.map(({ id, webformatURL, tags }) => (
         <ImageGalleryItem
           key={id}
+          id={id}
           smallImage={webformatURL}
           description={tags}
         ></ImageGalleryItem>
@@ -14,3 +15,8 @@ export const ImageGallery = ({ results }) => {
     </ImageList>
   );
 };
+
+// onClick = { imgCl };
+// function imgCl(e) {
+//   console.log(e.target);
+// }
