@@ -1,4 +1,5 @@
 import { ImageListItem, ImageItem } from './ImageGalleryItem.styled';
+import PropTypes from 'prop-types';
 
 export const ImageGalleryItem = ({ smallImage, description, id }) => {
   return (
@@ -7,7 +8,9 @@ export const ImageGalleryItem = ({ smallImage, description, id }) => {
     </ImageListItem>
   );
 };
-// onClick={imgCl
-// function imgCl(e) {
-//   console.log(e.currentTarget);
-// }
+
+ImageGalleryItem.propTypes = {
+  smallImage: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
+};

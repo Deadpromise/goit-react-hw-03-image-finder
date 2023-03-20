@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { AppContainer } from './App.styled';
 import Searchbar from './Searchbar/Searchbar';
 import { Loader } from './Loader/Loader';
@@ -6,6 +7,7 @@ import getImgs from 'services/pixabay-api';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
+import Notiflix from 'notiflix';
 
 const Status = {
   IDLE: 'idle',
@@ -15,6 +17,19 @@ const Status = {
 };
 
 export default class App extends Component {
+  static propTypes = {
+    state: PropTypes.shape({
+      searchQuery: PropTypes.string.isRequired,
+      page: PropTypes.number.isRequired,
+      results: PropTypes.arrayOf(PropTypes.shape({})),
+      status: PropTypes.string,
+      showModal: PropTypes.bool,
+      largeImage: PropTypes.shape({
+        largeImageURL: PropTypes.string.isRequired,
+        largeImageAlt: PropTypes.string.isRequired,
+      }),
+    }),
+  };
   state = {
     searchQuery: '',
     page: 1,
@@ -30,13 +45,20 @@ export default class App extends Component {
     if (this.state.searchQuery === searchQuery) {
       return;
     }
-    this.setState({ status: Status.PENDING });
+    // if (this.state.searchQuery !== searchQuery) {
+
+    // }
     this.setState({ page: 1 });
+    this.setState({ status: Status.PENDING });
+    // this.setState({ page: 1 });
     this.setState({ searchQuery });
     getImgs(searchQuery, this.state.page).then(result => {
       // console.log('form req');
       if (result.hits.length === 0) {
-        alert('Found nothing');
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        // alert('Found nothing');
         this.setState({ status: Status.REJECTED });
         return;
       }
@@ -71,13 +93,23 @@ export default class App extends Component {
       this.setState({ status: Status.PENDING });
       getImgs(currentQuery, currentPage)
         .then(result => {
-          console.log('load req');
+          // console.log('load req');
+          if (result.hits.length === 0) {
+            this.setState({ status: Status.REJECTED });
+            Notiflix.Notify.failure(
+              "We're sorry, but you've reached the end of search results."
+            );
+            return;
+          }
           const updatedResults = [...this.state.results, ...result.hits];
           this.setState({ results: updatedResults, status: Status.RESOLVED });
         })
         .catch(() => {
           this.setState({ status: Status.REJECTED });
-          alert('End of search');
+          Notiflix.Notify.failure(
+            "We're sorry, but you've reached the end of search results."
+          );
+          // alert('End of search');
         });
     }
   }
@@ -99,6 +131,7 @@ export default class App extends Component {
   render() {
     const pending = this.state.status === 'pending';
     const resolved = this.state.status === 'resolved';
+    const showBtn = this.state.results.length < 12;
     const { largeImageURL, largeImageAlt } = this.state.largeImage;
     return (
       <AppContainer>
@@ -108,7 +141,7 @@ export default class App extends Component {
           results={this.state.results}
         ></ImageGallery>
         {pending && <Loader></Loader>}
-        {this.state.results.length !== 0 && resolved && (
+        {this.state.results.length !== 0 && resolved && !showBtn && (
           <Button onClick={this.onLoadMore}></Button>
         )}
         {this.state.showModal && (

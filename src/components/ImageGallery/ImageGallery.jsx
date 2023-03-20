@@ -1,5 +1,6 @@
 import { ImageList } from './ImageGallery.styled';
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
+import PropTypes from 'prop-types';
 
 export const ImageGallery = ({ results, onClick }) => {
   return (
@@ -16,7 +17,7 @@ export const ImageGallery = ({ results, onClick }) => {
   );
 };
 
-// onClick = { imgCl };
-// function imgCl(e) {
-//   console.log(e.target);
-// }
+ImageGallery.propTypes = {
+  results: PropTypes.array.isRequired,
+  onClick: PropTypes.func.isRequired,
+};

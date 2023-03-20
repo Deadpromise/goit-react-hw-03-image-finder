@@ -1,4 +1,6 @@
 import { Component } from 'react';
+import Notiflix from 'notiflix';
+import PropTypes from 'prop-types';
 import {
   SearchHeader,
   SearchForm,
@@ -8,6 +10,12 @@ import {
 } from './Searchbar.styled';
 
 export default class Searchbar extends Component {
+  static propTypes = {
+    state: PropTypes.shape({
+      searchQuery: PropTypes.string.isRequired,
+    }),
+    onSubmit: PropTypes.func.isRequired,
+  };
   state = {
     searchQuery: '',
   };
@@ -17,7 +25,8 @@ export default class Searchbar extends Component {
   onFormSubmit = e => {
     e.preventDefault();
     if (this.state.searchQuery.trim() === '') {
-      alert('Введите что-то');
+      Notiflix.Notify.warning('Please, enter something.');
+      // alert('Введите что-то');
       return;
     }
     this.props.onSubmit(this.state.searchQuery);
