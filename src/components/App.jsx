@@ -32,7 +32,7 @@ export default class App extends Component {
   };
   state = {
     searchQuery: '',
-    page: 1,
+    page: 0,
     results: [],
     status: Status.IDLE,
     showModal: false,
@@ -42,28 +42,11 @@ export default class App extends Component {
     },
   };
   onFormSubmit = searchQuery => {
-    if (this.state.searchQuery === searchQuery) {
-      return;
-    }
-    // if (this.state.searchQuery !== searchQuery) {
-
-    // }
+    // this.setState({ status: Status.RESOLVED });
     this.setState({ page: 1 });
     this.setState({ status: Status.PENDING });
-    // this.setState({ page: 1 });
+
     this.setState({ searchQuery });
-    getImgs(searchQuery, this.state.page).then(result => {
-      // console.log('form req');
-      if (result.hits.length === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        // alert('Found nothing');
-        this.setState({ status: Status.REJECTED });
-        return;
-      }
-      this.setState({ results: result.hits, status: Status.RESOLVED });
-    });
   };
   pageIncr = currentPage => {
     this.setState({ page: currentPage + 1 });
@@ -76,32 +59,27 @@ export default class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    // const prevQuery = prevState.searchQuery;
+    const prevQuery = prevState.searchQuery;
     const currentQuery = this.state.searchQuery;
     const prevPage = prevState.page;
     const currentPage = this.state.page;
-    // if (prevQuery !== currentQuery) {
-    //   console.log('new request');
-    //   this.setState({ page: 1 });
-    //   return;
-    // }
-    // console.log('prevpage', prevPage);
-    // console.log('curpage', currentPage);
-    // console.log('prevname', prevQuery);
-    // console.log('curname', currentQuery);
     if (prevPage !== currentPage) {
       this.setState({ status: Status.PENDING });
       getImgs(currentQuery, currentPage)
         .then(result => {
-          // console.log('load req');
           if (result.hits.length === 0) {
             this.setState({ status: Status.REJECTED });
             Notiflix.Notify.failure(
-              "We're sorry, but you've reached the end of search results."
+              "Sorry, there are no images matching your search query or you've reached the end of search results."
             );
             return;
           }
-          const updatedResults = [...this.state.results, ...result.hits];
+          let updatedResults = [];
+          if (prevQuery !== '' && currentQuery !== prevQuery) {
+            updatedResults = [...result.hits];
+          } else {
+            updatedResults = [...this.state.results, ...result.hits];
+          }
           this.setState({ results: updatedResults, status: Status.RESOLVED });
         })
         .catch(() => {
@@ -109,7 +87,6 @@ export default class App extends Component {
           Notiflix.Notify.failure(
             "We're sorry, but you've reached the end of search results."
           );
-          // alert('End of search');
         });
     }
   }
@@ -118,7 +95,6 @@ export default class App extends Component {
       el => el.id === Number(e.target.id)
     );
     console.log(goalObj[0].largeImageURL);
-    // console.log(e.currentTarget);
     this.setState({
       showModal: true,
       largeImage: {
